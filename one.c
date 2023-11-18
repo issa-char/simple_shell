@@ -1,34 +1,29 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <string.h>
+#include "main.h"
 
 void runShell() {
-    char command[100]; // Assuming commands won't exceed 100 characters
+    char command[100];
     int status;
+	pid_t pid = fork();
 
     while (1) {
-        printf("#cisfun$ "); // Displaying the prompt
+        printf("#cisfun$ "); 
         if (fgets(command, sizeof(command), stdin) == NULL) {
             printf("\n");
-            break; // Exiting the shell on Ctrl+D (EOF)
+            break;
         }
 
-        // Removing the trailing newline character from the command
+
         command[strcspn(command, "\n")] = '\0';
 
-        pid_t pid = fork();
+       
         if (pid == -1) {
             perror("fork");
             exit(EXIT_FAILURE);
-        } else if (pid == 0) { // Child process
+        } else if (pid == 0) {
             execlp(command, command, (char *)NULL);
-            // If exec returns, there was an error
             perror(command);
             exit(EXIT_FAILURE);
-        } else { // Parent process
+        } else {
             waitpid(pid, &status, 0);
         }
     }
